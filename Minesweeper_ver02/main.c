@@ -1,11 +1,15 @@
-//bla
-
+//Minesweeper_ver02.c
+//
+//Final game, this time we have a recursive function that reveals all the neighbors cells that are empty.
+//To reveal a chosen cell the user enters row and column and the key 'O'
+//the user also have the ability to flag suspicious cells with pressing the 'F' key after the row and column input.
+//
+//Idan Oren 22/12/2020
 #define _CRT_SECURE_NO_WARNINGS
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
-#include <string.h>
 
 #define MINE '*'
 #define SPACE ' '
@@ -15,8 +19,6 @@
 
 void Game_Func();
 void Menu(int game_size[3]);
-void Difficulty(int game_size[3]);
-void User_Input();
 void Map_Printer(char map[ROWS][COLS], int rows, int cols);
 void Game_Map_Generator(char game_map[ROWS][COLS], int rows, int cols);
 void Random_Map_Generator(char consealed_map[ROWS][COLS], int rows, int cols, int mine_quantity);
@@ -38,10 +40,9 @@ void main() {
 void Game_Func() {
 	//input[0] -> rows
 	//input[1] -> cols
-	
 	int user_input[2];
 	char flag;
-	//char* flag_pointer = &flag;
+	
 
 	//game_size[0] -> rows
 	//game_size[1] -> cols
@@ -67,7 +68,6 @@ void Game_Func() {
 	Game_Map_Generator(game_map, game_size[0], game_size[1]);
 	Random_Map_Generator(consealed_map, game_size[0], game_size[1], game_size[2]);
 
-	//Print_Headline();
 	//Game loop
 	while (turns_to_win > 0) {
 		Map_Printer(game_map, game_size[0], game_size[1]);
@@ -123,6 +123,7 @@ void Game_Func() {
 	system("pause");
 }
 
+//Handles the menu at the start
 void Menu(int game_size[3]) {
 	int user_input = -1;
 	int row_input = 8, column_input = 8;
@@ -311,17 +312,17 @@ void Map_revealer(char consealed_map[ROWS][COLS], char game_map[ROWS][COLS], int
 
 }
 
-//Prints all the empty spaces
+//Recursive function that prints all the empty spaces
 //Returns the number of cells that was revealed
 int neighborEmptyRevealer(char consealed_map[ROWS][COLS], char game_map[ROWS][COLS], int row_input, int col_input, int row_size, int col_size) {
 	int output = 0;
-	if (!(row_input >= 0 && col_input >= 0 && row_input < row_size && col_input < col_size))
+	if (!(row_input >= 0 && col_input >= 0 && row_input < row_size && col_input < col_size)) //checks if the call is valid
 		return 0;
-	if (game_map[row_input][col_input] == consealed_map[row_input][col_input])
+	if (game_map[row_input][col_input] == consealed_map[row_input][col_input])	//checks if the called cell is alreay revealed
 		return 0;
-	if (game_map[row_input][col_input] == 'F')
+	if (game_map[row_input][col_input] == 'F')	//checks if the called cell is falgged
 		return 0;
-	else if (!Space_Checker(consealed_map[row_input][col_input]) && game_map[row_input][col_input] != consealed_map[row_input][col_input]) {
+	else if (!Space_Checker(consealed_map[row_input][col_input]) && game_map[row_input][col_input] != consealed_map[row_input][col_input]) {	//checks if the called cell is a consealed native number
 		game_map[row_input][col_input] = consealed_map[row_input][col_input];
 		return 1;
 	}
