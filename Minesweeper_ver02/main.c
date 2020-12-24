@@ -84,11 +84,9 @@ void Game_Func() {
 		}
 		else if (user_input[0] < 0 || user_input[1] < 0 || user_input[0] >= game_size[0] || user_input[1] >= game_size[1]) {
 			printf("invalid input! number are out of boundries\n");
-			system("pause");
 		}
 		else if (game_map[user_input[0]][user_input[1]] == consealed_map[user_input[0]][user_input[1]]) {
 			printf("invalid input! You already entered that numbers\n");
-			system("pause");
 		}
 		// if F was pressed it marks the selected cell with F
 		else if (((flag == 'f') || (flag == 'F'))) {
@@ -101,7 +99,6 @@ void Game_Func() {
 			 if (Mine_Checker(consealed_map[user_input[0]][user_input[1]])) {//check if the selected sqaure is a mine
 				Map_Printer(consealed_map, game_size[0], game_size[1]);
 				Print_Game_Over();
-				system("pause");
 				return;
 			}
 			else if (Space_Checker(consealed_map[user_input[0]][user_input[1]])) {
@@ -120,7 +117,6 @@ void Game_Func() {
 	}
 	Map_Printer(game_map, game_size[0], game_size[1]);
 	Winner_Printer();
-	system("pause");
 }
 
 //Handles the menu at the start
@@ -297,7 +293,7 @@ void Map_revealer(char consealed_map[ROWS][COLS], char game_map[ROWS][COLS], int
 	int row_cntr = last_row, col_cntr = last_col;
 	while (row_cntr < col_size && counter>0) {
 		for (col_cntr; col_cntr < row_size && counter>0; col_cntr++) {
-			if (!Mine_Checker(consealed_map[row_cntr][col_cntr])) {
+			if (!Mine_Checker(consealed_map[row_cntr][col_cntr]) && !(game_map[row_cntr][col_cntr] == consealed_map[row_cntr][col_cntr])) {
 				game_map[row_cntr][col_cntr] = consealed_map[row_cntr][col_cntr];//updates the game map
 				counter -= 1;
 			}
