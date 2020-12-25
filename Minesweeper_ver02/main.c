@@ -15,29 +15,29 @@
 #define SPACE ' '
 #define ROWS 22
 #define COLS 22
-#define MINE_QUANTITY 8
 
-void Game_Func();
-void Menu(int game_size[3]);
-void Map_Printer(char map[ROWS][COLS], int rows, int cols);
-void Game_Map_Generator(char game_map[ROWS][COLS], int rows, int cols);
-void Random_Map_Generator(char consealed_map[ROWS][COLS], int rows, int cols, int mine_quantity);
-void Mines_In_Range(char consealed_map[ROWS][COLS], int rows, int cols);
-bool Mine_Checker(char consealed_square);
-void Last_Cell_Location(char consealed_map[ROWS][COLS], char game_map[ROWS][COLS], int last_cell[2], int row_size, int col_size);
-void Map_revealer(char consealed_map[ROWS][COLS], char game_map[ROWS][COLS], int counter, int last_cell[2], int last_row, int last_col, int row_size, int col_size);
+
+void gameFunc();
+void menuFunc(int game_size[3]);
+void mapPrinter(char map[ROWS][COLS], int rows, int cols);
+void gameMapGenerator(char game_map[ROWS][COLS], int rows, int cols);
+void randomMapGenerator(char consealed_map[ROWS][COLS], int rows, int cols, int mine_quantity);
+void minesInRange(char consealed_map[ROWS][COLS], int rows, int cols);
+bool mineChecker(char consealed_square);
+void lastCellLocation(char consealed_map[ROWS][COLS], char game_map[ROWS][COLS], int last_cell[2], int row_size, int col_size);
+void mapRevealer(char consealed_map[ROWS][COLS], char game_map[ROWS][COLS], int counter, int last_cell[2], int last_row, int last_col, int row_size, int col_size);
 int neighborEmptyRevealer(char consealed_map[ROWS][COLS], char game_map[ROWS][COLS], int row_input, int col_input, int row_size, int col_size);
-bool Space_Checker(char square);
-void Print_Headline();
-void Print_Game_Over();
-void Winner_Printer();
+bool spaceChecker(char square);
+void printHeadLine();
+void printGameOver();
+void printWinner();
 
 void main() {
 	
-	Game_Func();
+	gameFunc();
 }
 
-void Game_Func() {
+void gameFunc() {
 	//input[0] -> rows
 	//input[1] -> cols
 	int user_input[2];
@@ -56,7 +56,7 @@ void Game_Func() {
 	char consealed_map[ROWS][COLS];
 	char game_map[ROWS][COLS];
 
-	Menu(game_size);
+	menuFunc(game_size);
 	//if game_size initionlized as -1, the game closes.
 	if (game_size[2] == -1) {
 		printf("GoodBye!!!");
@@ -65,12 +65,12 @@ void Game_Func() {
 
 	//generates the maps for the game
 	turns_to_win = (game_size[0] * game_size[1]) - game_size[2];
-	Game_Map_Generator(game_map, game_size[0], game_size[1]);
-	Random_Map_Generator(consealed_map, game_size[0], game_size[1], game_size[2]);
+	gameMapGenerator(game_map, game_size[0], game_size[1]);
+	randomMapGenerator(consealed_map, game_size[0], game_size[1], game_size[2]);
 
 	//Game loop
 	while (turns_to_win > 0) {
-		Map_Printer(game_map, game_size[0], game_size[1]);
+		mapPrinter(game_map, game_size[0], game_size[1]);
 		printf("\n\nTurns To Win:%d\n\n", turns_to_win);
 		printf("Please enter a row number and a column number : ");
 		scanf(" %d%d", &user_input[0], &user_input[1]);
@@ -79,8 +79,8 @@ void Game_Func() {
 
 		if (user_input[0] == -1 && user_input[1] > 0) { //reveals a portion of the map
 			turns_to_win -= user_input[1];
-			Last_Cell_Location(consealed_map, game_map, last_cell, game_size[0], game_size[1]);
-			Map_revealer(consealed_map, game_map, user_input[1], last_cell, last_cell[0], last_cell[1], game_size[0], game_size[1]);
+			lastCellLocation(consealed_map, game_map, last_cell, game_size[0], game_size[1]);
+			mapRevealer(consealed_map, game_map, user_input[1], last_cell, last_cell[0], last_cell[1], game_size[0], game_size[1]);
 		}
 		else if (user_input[0] < 0 || user_input[1] < 0 || user_input[0] >= game_size[0] || user_input[1] >= game_size[1]) {
 			printf("invalid input! number are out of boundries\n");
@@ -96,12 +96,12 @@ void Game_Func() {
 			if (game_map[user_input[0]][user_input[1]] == 'F') {
 				game_map[user_input[0]][user_input[1]] = 'X';
 			}
-			 if (Mine_Checker(consealed_map[user_input[0]][user_input[1]])) {//check if the selected sqaure is a mine
-				Map_Printer(consealed_map, game_size[0], game_size[1]);
-				Print_Game_Over();
+			 if (mineChecker(consealed_map[user_input[0]][user_input[1]])) {//check if the selected sqaure is a mine
+				mapPrinter(consealed_map, game_size[0], game_size[1]);
+				printGameOver();
 				return;
 			}
-			else if (Space_Checker(consealed_map[user_input[0]][user_input[1]])) {
+			else if (spaceChecker(consealed_map[user_input[0]][user_input[1]])) {
 				turns_to_win -= neighborEmptyRevealer(consealed_map, game_map, user_input[0], user_input[1], game_size[0], game_size[1]);
 			}
 
@@ -115,16 +115,16 @@ void Game_Func() {
 			printf("invalid action!\n");
 
 	}
-	Map_Printer(game_map, game_size[0], game_size[1]);
-	Winner_Printer();
+	mapPrinter(game_map, game_size[0], game_size[1]);
+	printWinner();
 }
 
 //Handles the menu at the start
-void Menu(int game_size[3]) {
+void menuFunc(int game_size[3]) {
 	int user_input = -1;
 	int row_input = 8, column_input = 8;
 
-	Print_Headline(); //Prints a headline "Minesweeper"
+	printHeadLine(); //Prints a headline "Minesweeper"
 	printf("Please choose one of the following options and enter it's number:\n\n");
 	printf("1 - for size 8x8\n\n2 - for size 12x12\n\n3 - for size 15x15\n\n4 - for custom size\n\n0 - Exit\n\n");
 
@@ -173,7 +173,7 @@ void Menu(int game_size[3]) {
 }
 
 //prints the map
-void Map_Printer(char map[ROWS][COLS], int rows, int cols) {
+void mapPrinter(char map[ROWS][COLS], int rows, int cols) {
 	int col_index = 0, row_index = 0;
 	printf("\n");
 	printf("       ");
@@ -194,7 +194,7 @@ void Map_Printer(char map[ROWS][COLS], int rows, int cols) {
 }
 
 //genrate the game map - puts 'X' in every cell
-void Game_Map_Generator(char game_map[ROWS][COLS], int rows, int cols) {
+void gameMapGenerator(char game_map[ROWS][COLS], int rows, int cols) {
 	for (int index_row = 0; index_row < rows; index_row++)
 		for (int index_col = 0; index_col < cols; index_col++)
 			game_map[index_row][index_col] = 'X';
@@ -202,7 +202,7 @@ void Game_Map_Generator(char game_map[ROWS][COLS], int rows, int cols) {
 }
 
 //generates a random consealed map
-void Random_Map_Generator(char consealed_map[ROWS][COLS], int rows, int cols, int mine_quantity) {
+void randomMapGenerator(char consealed_map[ROWS][COLS], int rows, int cols, int mine_quantity) {
 
 	char temp = mine_quantity; //a temp character, uses in both initializing the consealed map and to random the map
 	int random_row, random_col = 0;
@@ -229,37 +229,37 @@ void Random_Map_Generator(char consealed_map[ROWS][COLS], int rows, int cols, in
 			consealed_map[random_row][random_col] = consealed_map[row_index][col_index];
 			consealed_map[row_index][col_index] = temp;
 		}
-	Mines_In_Range(consealed_map, rows, cols);
+	minesInRange(consealed_map, rows, cols);
 }
 
 //Determine the number of neighboring mines to a square
-void Mines_In_Range(char consealed_map[ROWS][COLS], int rows, int cols) {
+void minesInRange(char consealed_map[ROWS][COLS], int rows, int cols) {
 	for (int index_cols = 0; index_cols < cols; index_cols++) {
 		for (int index_rows = 0; index_rows < rows; index_rows++) {
-			if (!Mine_Checker(consealed_map[index_rows][index_cols])) {
+			if (!mineChecker(consealed_map[index_rows][index_cols])) {
 				//NW
-				if ((index_rows - 1 >= 0) && (index_cols - 1 >= 0) && Mine_Checker(consealed_map[index_rows - 1][index_cols - 1]))
+				if ((index_rows - 1 >= 0) && (index_cols - 1 >= 0) && mineChecker(consealed_map[index_rows - 1][index_cols - 1]))
 					consealed_map[index_rows][index_cols]++;
 				//N	
-				if ((index_rows - 1 >= 0) && Mine_Checker(consealed_map[index_rows - 1][index_cols]))
+				if ((index_rows - 1 >= 0) && mineChecker(consealed_map[index_rows - 1][index_cols]))
 					consealed_map[index_rows][index_cols]++;
 				//NE
-				if ((index_rows - 1 >= 0) && (index_cols + 1 < cols) && Mine_Checker(consealed_map[index_rows - 1][index_cols + 1]))
+				if ((index_rows - 1 >= 0) && (index_cols + 1 < cols) && mineChecker(consealed_map[index_rows - 1][index_cols + 1]))
 					consealed_map[index_rows][index_cols]++;
 				//W
-				if ((index_cols - 1 >= 0) && Mine_Checker(consealed_map[index_rows][index_cols - 1]))
+				if ((index_cols - 1 >= 0) && mineChecker(consealed_map[index_rows][index_cols - 1]))
 					consealed_map[index_rows][index_cols]++;
 				//E
-				if ((index_cols + 1 < cols) && Mine_Checker(consealed_map[index_rows][index_cols + 1]))
+				if ((index_cols + 1 < cols) && mineChecker(consealed_map[index_rows][index_cols + 1]))
 					consealed_map[index_rows][index_cols]++;
 				//SW
-				if ((index_rows + 1 < rows) && (index_cols - 1 >= 0) && Mine_Checker(consealed_map[index_rows + 1][index_cols - 1]))
+				if ((index_rows + 1 < rows) && (index_cols - 1 >= 0) && mineChecker(consealed_map[index_rows + 1][index_cols - 1]))
 					consealed_map[index_rows][index_cols]++;
 				//S
-				if ((index_rows + 1 < rows) && Mine_Checker(consealed_map[index_rows + 1][index_cols]))
+				if ((index_rows + 1 < rows) && mineChecker(consealed_map[index_rows + 1][index_cols]))
 					consealed_map[index_rows][index_cols]++;
 				//SE
-				if ((index_rows + 1 < rows) && (index_cols + 1 < cols) && Mine_Checker(consealed_map[index_rows + 1][index_cols + 1]))
+				if ((index_rows + 1 < rows) && (index_cols + 1 < cols) && mineChecker(consealed_map[index_rows + 1][index_cols + 1]))
 					consealed_map[index_rows][index_cols]++;
 
 				//converts '0' to ' '
@@ -270,12 +270,12 @@ void Mines_In_Range(char consealed_map[ROWS][COLS], int rows, int cols) {
 	}
 }
 
-bool Mine_Checker(char consealed_square) {
+bool mineChecker(char consealed_square) {
 	return (consealed_square == MINE);
 }
 
 //Calculates the last cell location and writes it to the 
-void Last_Cell_Location(char consealed_map[ROWS][COLS], char game_map[ROWS][COLS], int last_cell[2], int row_size, int col_size) {
+void lastCellLocation(char consealed_map[ROWS][COLS], char game_map[ROWS][COLS], int last_cell[2], int row_size, int col_size) {
 	int row_cntr = last_cell[0], col_cntr = last_cell[1];
 	while (game_map[row_cntr][col_cntr] == consealed_map[row_cntr][col_cntr] && row_cntr < row_size) {
 		col_cntr += 1;
@@ -289,11 +289,11 @@ void Last_Cell_Location(char consealed_map[ROWS][COLS], char game_map[ROWS][COLS
 }
 
 //Reveals the the chosen number of squares that does not contain a mine by order
-void Map_revealer(char consealed_map[ROWS][COLS], char game_map[ROWS][COLS], int counter, int last_cell[2], int last_row, int last_col, int row_size, int col_size) {
+void mapRevealer(char consealed_map[ROWS][COLS], char game_map[ROWS][COLS], int counter, int last_cell[2], int last_row, int last_col, int row_size, int col_size) {
 	int row_cntr = last_row, col_cntr = last_col;
 	while (row_cntr < col_size && counter>0) {
 		for (col_cntr; col_cntr < row_size && counter>0; col_cntr++) {
-			if (!Mine_Checker(consealed_map[row_cntr][col_cntr]) && !(game_map[row_cntr][col_cntr] == consealed_map[row_cntr][col_cntr])) {
+			if (!mineChecker(consealed_map[row_cntr][col_cntr]) && !(game_map[row_cntr][col_cntr] == consealed_map[row_cntr][col_cntr])) {
 				game_map[row_cntr][col_cntr] = consealed_map[row_cntr][col_cntr];//updates the game map
 				counter -= 1;
 			}
@@ -318,7 +318,7 @@ int neighborEmptyRevealer(char consealed_map[ROWS][COLS], char game_map[ROWS][CO
 		return 0;
 	if (game_map[row_input][col_input] == 'F')	//checks if the called cell is falgged
 		return 0;
-	else if (!Space_Checker(consealed_map[row_input][col_input]) && game_map[row_input][col_input] != consealed_map[row_input][col_input]) {	//checks if the called cell is a consealed native number
+	else if (!spaceChecker(consealed_map[row_input][col_input]) && game_map[row_input][col_input] != consealed_map[row_input][col_input]) {	//checks if the called cell is a consealed native number
 		game_map[row_input][col_input] = consealed_map[row_input][col_input];
 		return 1;
 	}
@@ -346,11 +346,11 @@ int neighborEmptyRevealer(char consealed_map[ROWS][COLS], char game_map[ROWS][CO
 	}
 }
 
-bool Space_Checker(char square) {
+bool spaceChecker(char square) {
 	return(square == SPACE);
 }
 
-void Print_Headline() {
+void printHeadLine() {
 	printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
 	printf("  __  __  _                                                           \n");
 	printf(" |  \\/  |(_)                                                          \n");
@@ -364,7 +364,7 @@ void Print_Headline() {
 }
 
 //Prints a headline "Game over"
-void Print_Game_Over() {
+void printGameOver() {
 	printf("   _____                                                  \n");
 	printf("  / ____|                                                 \n");
 	printf(" | |  __   __ _  _ __ ___    ___     ___ __   __ ___  _ __ \n");
@@ -373,7 +373,7 @@ void Print_Game_Over() {
 	printf("  \\_____| \\__,_||_| |_| |_| \\___|   \\___/  \\_/  \\___||_|   \n");
 }
 
-void Winner_Printer() {
+void printWinner() {
 	printf(" __     __ ____   _    _    __          __ _____  _   _    _   _   _ \n");
 	printf(" \\ \\   / // __ \\ | |  | |   \\ \\        / /|_   _|| \\ | |  | | | | | |\n");
 	printf("  \\ \\_/ /| |  | || |  | |    \\ \\  /\\  / /   | |  |  \\| |  | | | | | |\n");
